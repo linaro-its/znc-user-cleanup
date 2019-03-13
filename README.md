@@ -26,7 +26,7 @@ To run the script:
 
 ```
 cd <installation directory>
-pipenv run ./cleanup.py
+pipenv run python cleanup.py
 ```
 
 **NOTE** It is entirely possible that it will be necessary to run this script with root credentials unless additional steps are taken to grant the required permissions on both the source and (optionally) destination directories to allow the user account being used to make the appropriate changes.
