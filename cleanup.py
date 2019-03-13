@@ -100,7 +100,20 @@ def main():
         ))
     else:
         raise ValueError("'ssl' missing from configuration file")
+    if "adminnick" in configuration:
+        user = configuration["adminnick"]
+    else:
+        raise ValueError("'adminnick' missing from configuration file")
+    if "adminpw" in configuration:
+        password = configuration["adminpw"]
+    else:
+        raise ValueError("'adminpw' missing from configuration file")
+    if "trashpath" in configuration:
+        trashpath = configuration["trashpath"]
+    else:
+        raise ValueError("'trashpath' missing from configuration file")
     irc = Irc(port, use_ssl)
+    irc.logon(user, password)
     users = irc.get_users()
     print(users)
 
