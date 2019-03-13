@@ -146,6 +146,9 @@ def main():
         raise ValueError("'zncconfigpath' missing from configuration file")
     if "trashpath" in configuration:
         trashpath = configuration["trashpath"]
+        if trashpath == "MUSTBEEDITED":
+            raise ValueError(
+                "'trashpath' has not been reviewed for a correct value")
     else:
         raise ValueError("'trashpath' missing from configuration file")
     irc = Irc(port, use_ssl)

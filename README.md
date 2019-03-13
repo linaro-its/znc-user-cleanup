@@ -20,7 +20,7 @@ pipenv install
 
 Take a copy of `sample_config.jsonc`, call it `config.jsonc` and adjust the parameters as explained in the comments in the configuration file.
 
-The most important configuration parameter to review is `trashpath`. This is blank in the sample file. If left like this, the script will delete any folders belonging to users without active ZNC accounts. If, instead, you want the directories moved elsewhere, you must set this to the appropriate path.
+The most important configuration parameter to review is `trashpath`. This is set to a dummy value in the sample file that, if left like this, will generate an error. The value must either be "" (in which case the script will delete any folders belonging to users without active ZNC accounts) or the path to a directory where the script will move the user directories.
 
 To run the script:
 
@@ -28,3 +28,5 @@ To run the script:
 cd <installation directory>
 pipenv run ./cleanup.py
 ```
+
+**NOTE** It is entirely possible that it will be necessary to run this script with root credentials unless additional steps are taken to grant the required permissions on both the source and (optionally) destination directories to allow the user account being used to make the appropriate changes.

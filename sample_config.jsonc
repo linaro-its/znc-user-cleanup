@@ -12,7 +12,9 @@
     // ZNC configuration path
     "zncconfigpath": "",
     // Trash folder path.
-    // NOTE! If this is left as an empty string, user directories
-    //       will be DELETED!
-    "trashpath": ""
+    // To ensure that this value is reviewed, it has a dummy value.
+    // It must either be set to "" to delete user directories or
+    // to the path of the trash folder where the user directories
+    // are to be moved.
+    "trashpath": "MUSTBEEDITED"
 }
