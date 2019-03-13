@@ -24,7 +24,7 @@ class Irc:
             )
         else:
             self.socket = non_ssl
-        self.socket.connect(("localhost"), port)
+        self.socket.connect(("localhost", port))
         atexit.register(self.cleanup)
 
     def cleanup(self):
