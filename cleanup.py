@@ -88,7 +88,7 @@ class Irc:
 def main():
     # Read the configuration file
     basedir = os.path.dirname(os.path.dirname(__file__))
-    with open(os.path.join(basedir, "configuration.jsonc")) as f:
+    with open(os.path.join(basedir, "config.jsonc")) as f:
         configuration = json.loads(json_minify(f.read()))
     if "port" in configuration:
         port = int(configuration["port"])

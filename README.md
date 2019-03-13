@@ -26,5 +26,5 @@ To run the script:
 
 ```
 cd <installation directory>
-pipenv run cleanup.py
+pipenv run ./cleanup.py
 ```
