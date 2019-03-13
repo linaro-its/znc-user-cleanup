@@ -1,0 +1,16 @@
+// Make a copy of this file and call it config.jsonc and
+// adjust the settings as required.
+{
+    // Which port is the server running on?
+    "port": "8443",
+    // Is SSL being used?
+    "ssl": "False",
+    // Admin account nick
+    "adminnick": "",
+    // Admin account password
+    "adminpw": "",
+    // Trash folder path.
+    // NOTE! If this is left as an empty string, user directories
+    //       will be DELETED!
+    "trashpath": ""
+}

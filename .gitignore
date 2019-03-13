@@ -1,3 +1,7 @@
+# Don't allow the config.jsonc file to accidentally be
+# added to the repo.
+config.jsonc
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
