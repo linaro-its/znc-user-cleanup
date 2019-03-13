@@ -9,6 +9,8 @@
     "adminnick": "",
     // Admin account password
     "adminpw": "",
+    // ZNC configuration path
+    "zncconfigpath": "",
     // Trash folder path.
     // NOTE! If this is left as an empty string, user directories
     //       will be DELETED!

@@ -9,6 +9,7 @@ import ssl
 import atexit
 import distutils
 import time
+import shutil
 
 
 class Irc:
@@ -85,6 +86,28 @@ class Irc:
         return users
 
 
+def process_directory(userdir, configpath, trashpath):
+    if trashpath == "":
+        print("Deleting %s" % userdir)
+        shutil.rmtree("%s/users/%s" % (configpath, userdir))
+    else:
+        print("Moving %s to trash dir" % userdir)
+        shutil.move(
+            "%s/users/%s" % (configpath, userdir),
+            trashpath
+        )
+
+
+def check_users(configpath, trashpath, users):
+    # Check all of the user directories underneath the config path.
+    # If there are any directories that aren't in the users list,
+    # action them according to the setting of trashpath.
+    dirs = next(os.walk("%s/users" % configpath))[1]
+    for dir in dirs:
+        if dir not in users:
+            process_directory(dir, configpath, trashpath)
+
+
 def main():
     # Read the configuration file
     basedir = os.path.dirname(os.path.dirname(__file__))
@@ -102,12 +125,25 @@ def main():
         raise ValueError("'ssl' missing from configuration file")
     if "adminnick" in configuration:
         user = configuration["adminnick"]
+        if user == "":
+            raise ValueError("'adminnick' hasn't been set")
     else:
         raise ValueError("'adminnick' missing from configuration file")
     if "adminpw" in configuration:
         password = configuration["adminpw"]
+        if password == "":
+            raise ValueError("'adminpw' hasn't been set")
     else:
         raise ValueError("'adminpw' missing from configuration file")
+    if "zncconfigpath" in configuration:
+        zncconfigpath = configuration["zncconfigpath"]
+        if zncconfigpath == "":
+            raise ValueError("'zncconfigpath' hasn't been set")
+        # Make sure the path string does NOT end with /.
+        if zncconfigpath[-1] == "/":
+            zncconfigpath = zncconfigpath[:-1]
+    else:
+        raise ValueError("'zncconfigpath' missing from configuration file")
     if "trashpath" in configuration:
         trashpath = configuration["trashpath"]
     else:
@@ -115,7 +151,7 @@ def main():
     irc = Irc(port, use_ssl)
     irc.logon(user, password)
     users = irc.get_users()
-    print(users)
+    check_users(zncconfigpath, trashpath, users)
 
 
 if __name__ == '__main__':
