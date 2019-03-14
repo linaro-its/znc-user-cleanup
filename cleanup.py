@@ -91,7 +91,7 @@ class Irc:
                 users.append(parts[4])
         # Sanity check that what we've received looks like we've
         # correctly interpreted the output from ListUsers.
-        if users[0] != "Username":
+        if len(users) == 0 or users[0] != "Username":
             raise ValueError((
                 "Response from 'ListUsers' command has not met expectations."
                 " Please check connection configuration, particularly port"
