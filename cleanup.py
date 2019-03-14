@@ -13,7 +13,7 @@ import shutil
 
 
 class Irc:
-    def __init__(self, port, use_ssl):
+    def __init__(self, port, use_ssl, show_comms):
         non_ssl = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         if use_ssl:
             # Wrap SSL around the socket. We try to be as permissive as
@@ -26,6 +26,7 @@ class Irc:
         else:
             self.socket = non_ssl
         self.socket.connect(("localhost", port))
+        self.show_comms = show_comms
         atexit.register(self.cleanup)
 
     def cleanup(self):
@@ -33,6 +34,8 @@ class Irc:
 
     def send(self, msg):
         # Make the socket blocking so we can use sendall
+        if self.show_comms:
+            print("Sending: %s" % msg)
         self.socket.setblocking(1)
         self.socket.sendall(msg.encode())
 
@@ -65,7 +68,10 @@ class Irc:
             except Exception:
                 pass
         # Join all parts to make final string
-        return ''.join(total_data)
+        result = ''.join(total_data)
+        if self.show_comms:
+            print("Received: %s" % result)
+        return result
 
     def logon(self, username, password):
         self.send("NICK %s\r\n" % username)
@@ -113,6 +119,12 @@ def main():
     basedir = os.path.dirname(os.path.dirname(__file__))
     with open(os.path.join(basedir, "config.jsonc")) as f:
         configuration = json.loads(json_minify(f.read()))
+    if "debug" in configuration:
+        show_comms = bool(distutils.util.strtobool(
+            configuration["debug"]
+        ))
+    else:
+        show_comms = False
     if "port" in configuration:
         port = int(configuration["port"])
     else:
@@ -151,7 +163,7 @@ def main():
                 "'trashpath' has not been reviewed for a correct value")
     else:
         raise ValueError("'trashpath' missing from configuration file")
-    irc = Irc(port, use_ssl)
+    irc = Irc(port, use_ssl, show_comms)
     irc.logon(user, password)
     users = irc.get_users()
     check_users(zncconfigpath, trashpath, users)

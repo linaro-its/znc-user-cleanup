@@ -1,6 +1,9 @@
 // Make a copy of this file and call it config.jsonc and
 // adjust the settings as required.
 {
+    // Optional: turn debug to True to see the messages sent to
+    //           the ZNC service and received back.
+    "debug": "False",
     // Which port is the server running on?
     "port": "8443",
     // Is SSL being used?
