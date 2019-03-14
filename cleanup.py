@@ -89,6 +89,16 @@ class Irc:
             parts = line.split(" ")
             if len(parts) > 4:
                 users.append(parts[4])
+        # Sanity check that what we've received looks like we've
+        # correctly interpreted the output from ListUsers.
+        if users[0] != "Username":
+            raise ValueError((
+                "Response from 'ListUsers' command has not met expectations."
+                " Please check connection configuration, particularly port"
+                " and ssl. If they look correct, change 'debug' to True to"
+                " make sure that ListUsers is working and the output"
+                " is as expected."
+            ))
         return users
 
 
