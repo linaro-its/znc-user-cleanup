@@ -14,10 +14,9 @@ class deluserdir(znc.Module):
         "is deleted"
     )
     module_types = [znc.CModInfo.GlobalModule]
-    has_args = True
 
     def OnLoad(self, args, message):
-        fail = False
+        success = True
         # Check the args and store associated values
         arglist = args.split()
         for arg in arglist:
@@ -25,45 +24,47 @@ class deluserdir(znc.Module):
             if k == "trashdir":
                 self.nv[k] = v
             else:
-                message.s = "'%s' is not recognised" % k
-                fail = True
-        if not fail and "trashdir" not in self.nv:
-            message.s = (
+                self.PutModule(
+                    "'%s' is not recognised" % k
+                )
+                success = False
+        if "trashdir" not in self.nv:
+            self.PutModule(
                 "'trashdir' must be set either to an empty string or"
                 " to the desired trash directory"
             )
-            fail = True
-        # If trashdir is specified, make sure it exists and that we can
-        # write to it.
-        if (not fail and
-                self.nv["trashdir"] != "" and
-                not os.path.isdir(self.nv["trashdir"])):
-            message.s = (
-                "The specified trash directory ('%s') cannot be found" %
-                self.nv["trashdir"]
-            )
-            fail = True
-        if not fail:
-            fail = not(os.access(
-                self.nv["trashdir"],
-                os.R_OK | os.W_OK | os.X_OK
-            ))
-            if fail:
-                message.s = (
-                    "The specified trash directory ('%s') doesn't have the"
-                    " correct access rights for the account running ZNC" %
+            success = False
+        # If trashdir is specified ...
+        if success and self.nv["trashdir"] != "":
+            # make sure it exists
+            if not os.path.isdir(self.nv["trashdir"]):
+                self.PutModule(
+                    "The specified trash directory ('%s') cannot be found" %
                     self.nv["trashdir"]
                 )
+                success = False
+            else:
+                # make sure that we can write to it.
+                success = os.access(
+                    self.nv["trashdir"],
+                    os.R_OK | os.W_OK | os.X_OK
+                )
+                if not success:
+                    self.PutModule(
+                        "The specified trash directory ('%s') doesn't have the"
+                        " correct access rights for the account running ZNC" %
+                        self.nv["trashdir"]
+                    )
 
-        if not fail:
+        if success:
             if self.nv["trashdir"] == "":
-                message.s = (
+                self.PutModule(
                     "deluserdir is loaded. User directories will be deleted"
                 )
             else:
-                message.s = (
+                self.PutModule(
                     "deluserdir is loaded. User directories will be moved"
-                    " to '%' when user accounts are deleted" %
+                    " to '%s' when user accounts are deleted" %
                     self.nv["trashdir"]
                 )
-        return fail
+        return success
