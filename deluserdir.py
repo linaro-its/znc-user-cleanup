@@ -14,6 +14,8 @@ class deluserdir(znc.Module):
         "is deleted"
     )
     module_types = [znc.CModInfo.GlobalModule]
+    wiki_page = "https://github.com/linaro-its/znc-user-cleanup"
+    has_args = True
 
     def OnLoad(self, args, message):
         fail = False
