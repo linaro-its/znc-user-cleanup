@@ -6,6 +6,7 @@
 
 import znc
 import os
+import shutil
 
 
 class deluserdir(znc.Module):
@@ -70,6 +71,12 @@ class deluserdir(znc.Module):
         return success
 
     def OnDeleteUser(self, user):
-        print("OnDeleteUser called")
-        print(user.GetUsername())
+        trashdir = self.nv["trashdir"]
+        userdir = user.GetUserPath()
+        if trashdir == "":
+            self.PutModule("Deleting %s" % userdir)
+            shutil.rmtree(userdir)
+        else:
+            self.PutModule("Moving %s to trash dir" % userdir)
+            shutil.move(userdir, trashdir)
         return znc.CONTINUE
