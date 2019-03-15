@@ -6,8 +6,7 @@
 
 import znc
 import os
-# import shutil
-import subprocess
+import shutil
 
 
 class deluserdir(znc.Module):
@@ -71,33 +70,20 @@ class deluserdir(znc.Module):
                 )
         return success
 
-    def run_command(self, cmd):
-        process = subprocess.Popen(
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdoutdata, stderrdata = process.communicate()
-        if stdoutdata == "" and stderrdata == "":
-            return True
-        else:
-            if stdoutdata != "":
-                print(stdoutdata)
-            if stderrdata != "":
-                print(stderrdata)
-            return False
-
     def OnDeleteUser(self, user):
         trashdir = self.nv["trashdir"]
         userdir = user.GetUserPath()
         try:
             if trashdir == "":
                 print("Deleting %s" % userdir)
-                if self.run_command(["rm", "-rf", userdir]):
-                    print("Deletion completed")
-                # shutil.rmtree(userdir)
+                shutil.rmtree(userdir)
             else:
                 print("Moving %s to trash dir" % userdir)
-                if self.run_command(["mv", userdir, trashdir]):
-                    print("Move completed")
-                # shutil.move(userdir, trashdir)
+                shutil.move(userdir, trashdir)
+            if os.path.isdir(userdir):
+                print("Uh oh. Source directory still there.")
+            else:
+                print("Operation completed")
         except Exception as e:
             print("OnDeleteUser failed with %s" % str(e))
         return znc.CONTINUE
