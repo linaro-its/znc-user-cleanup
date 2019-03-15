@@ -56,4 +56,15 @@ class deluserdir(znc.Module):
                     self.nv["trashdir"]
                 )
 
+        if not fail:
+            if self.nv["trashdir"] == "":
+                self.PutModule(
+                    "deluserdir is loaded. User directories will be deleted"
+                )
+            else:
+                self.PutModule(
+                    "deluserdir is loaded. User directories will be moved"
+                    " to '%' when user accounts are deleted" %
+                    self.nv["trashdir"]
+                )
         return fail
