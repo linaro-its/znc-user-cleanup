@@ -15,6 +15,7 @@ class deluserdir(znc.Module):
         "is deleted"
     )
     module_types = [znc.CModInfo.GlobalModule]
+    has_args = True
 
     def OnLoad(self, args, message):
         success = True
