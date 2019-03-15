@@ -44,7 +44,10 @@ Since the module is written in Python, the ZNC module `modpython` needs to be en
 This can also be done via the global settings on webadmin. Once enabled, you should see `deluserdir` as an available module and that can then be loaded:
 
 ```
-/znc loadmod deluserdir
+/znc loadmod deluserdir trashdir=
+/znc loadmod deluserdir trashdir=<path to trash directory>
 ```
+
+Specifying `trashdir=` means that, when a user account is deleted, the corresponding user directory will be deleted as well.
 
 Again, this can also be done via webadmin.

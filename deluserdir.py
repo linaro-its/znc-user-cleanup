@@ -58,13 +58,18 @@ class deluserdir(znc.Module):
 
         if success:
             if self.nv["trashdir"] == "":
-                self.PutModule(
+                print(
                     "deluserdir is loaded. User directories will be deleted"
                 )
             else:
-                self.PutModule(
+                print(
                     "deluserdir is loaded. User directories will be moved"
                     " to '%s' when user accounts are deleted" %
                     self.nv["trashdir"]
                 )
         return success
+
+    def OnDeleteUser(self, user):
+        print("OnDeleteUser called")
+        print(user.GetUsername())
+        return znc.CONTINUE
