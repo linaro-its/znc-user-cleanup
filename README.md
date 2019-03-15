@@ -4,9 +4,11 @@ When someone uses [ZNC](https://wiki.znc.in/ZNC), a directory is created for the
 
 When that user's account is deleted from ZNC, the corresponding directory is **not** deleted.
 
-Whether or not that directory *should* be deleted is the topic of quite an old issue on [GitHub](https://github.com/znc/znc/issues/260).
+This repo provides two solutions:
 
-The purpose of this repo is to provide a simple script which, when run, will find the directories belonging to users without accounts on ZNC and either move them to a nominated "trash" folder or delete them, depending on the configuration settings.
+1. A script which, when run, will find the directories belonging to users without accounts on ZNC and either move them to a nominated "trash" folder or delete them, depending on the configuration settings.
+
+2. A ZNC module which, when loaded, will be triggered when a user account is deleted on ZNC and either move that user's directory to the nominated "trash" folder or delete it, depending on whether the folder path is specified or not.
 
 # Using the script
 
@@ -30,3 +32,19 @@ pipenv run python cleanup.py
 ```
 
 **NOTE** It is entirely possible that it will be necessary to run this script with root credentials unless additional steps are taken to grant the required permissions on both the source and (optionally) destination directories to allow the user account being used to make the appropriate changes.
+
+# Using the module
+
+Since the module is written in Python, the ZNC module `modpython` needs to be enabled:
+
+```
+/znc loadmod modpython
+```
+
+This can also be done via the global settings on webadmin. Once enabled, you should see `deluserdir` as an available module and that can then be loaded:
+
+```
+/znc loadmod deluserdir
+```
+
+Again, this can also be done via webadmin.

@@ -24,12 +24,10 @@ class deluserdir(znc.Module):
             if k == "trashdir":
                 self.nv[k] = v
             else:
-                self.PutModule(
-                    "'%s' is not recognised" % k
-                )
+                message.s = "'%s' is not recognised" % k
                 fail = True
-        if "trashdir" not in self.nv:
-            self.PutModule(
+        if not fail and "trashdir" not in self.nv:
+            message.s = (
                 "'trashdir' must be set either to an empty string or"
                 " to the desired trash directory"
             )
@@ -39,7 +37,7 @@ class deluserdir(znc.Module):
         if (not fail and
                 self.nv["trashdir"] != "" and
                 not os.path.isdir(self.nv["trashdir"])):
-            self.PutModule(
+            message.s = (
                 "The specified trash directory ('%s') cannot be found" %
                 self.nv["trashdir"]
             )
@@ -50,7 +48,7 @@ class deluserdir(znc.Module):
                 os.R_OK | os.W_OK | os.X_OK
             ))
             if fail:
-                self.PutModule(
+                message.s = (
                     "The specified trash directory ('%s') doesn't have the"
                     " correct access rights for the account running ZNC" %
                     self.nv["trashdir"]
@@ -58,11 +56,11 @@ class deluserdir(znc.Module):
 
         if not fail:
             if self.nv["trashdir"] == "":
-                self.PutModule(
+                message.s = (
                     "deluserdir is loaded. User directories will be deleted"
                 )
             else:
-                self.PutModule(
+                message.s = (
                     "deluserdir is loaded. User directories will be moved"
                     " to '%' when user accounts are deleted" %
                     self.nv["trashdir"]
