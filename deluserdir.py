@@ -76,15 +76,15 @@ class deluserdir(znc.Module):
         userdir = user.GetUserPath()
         try:
             if trashdir == "":
-                print("Deleting %s" % userdir)
+                self.PutModule("Deleting %s" % userdir)
                 shutil.rmtree(userdir)
             else:
-                print("Moving %s to trash dir" % userdir)
+                self.PutModule("Moving %s to trash dir" % userdir)
                 shutil.move(userdir, trashdir)
             if os.path.isdir(userdir):
-                print("Uh oh. Source directory still there.")
+                self.PutModule("Uh oh. Source directory still there.")
             else:
-                print("Operation completed")
+                self.PutModule("Operation completed")
         except Exception as e:
-            print("OnDeleteUser failed with %s" % str(e))
+            self.PutModule("deluserdir:OnDeleteUser failed with %s" % str(e))
         return znc.CONTINUE
