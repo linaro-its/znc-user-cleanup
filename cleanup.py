@@ -1,5 +1,10 @@
 #!/usr/bin/python3
 #
+# This script compares the list of ZNC user accounts with the user directories
+# and, depending on the config settings, either deletes or moves to a trash
+# folder those directories that no longer belong to active accounts.
+#
+# Copyright 2019 Philip Colmer, Linaro Ltd
 
 import os
 import json
