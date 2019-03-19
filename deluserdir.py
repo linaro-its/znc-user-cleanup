@@ -60,12 +60,12 @@ class deluserdir(znc.Module):
 
         if success:
             if self.nv["trashdir"] == "":
-                znc.Broadcast(
+                znc.CZNC.Broadcast(
                     "deluserdir is loaded. User directories will be deleted",
                     True
                 )
             else:
-                znc.Broadcast(
+                znc.CZNC.Broadcast(
                     "deluserdir is loaded. User directories will be moved"
                     " to '%s' when user accounts are deleted" %
                     self.nv["trashdir"],
@@ -78,16 +78,17 @@ class deluserdir(znc.Module):
         userdir = user.GetUserPath()
         try:
             if trashdir == "":
-                znc.Broadcast("Deleting %s" % userdir, True)
+                znc.CZNC.Broadcast("Deleting %s" % userdir, True)
                 shutil.rmtree(userdir)
             else:
-                znc.Broadcast("Moving %s to trash dir" % userdir, True)
+                znc.CZNC.Broadcast("Moving %s to trash dir" % userdir, True)
                 shutil.move(userdir, trashdir)
             if os.path.isdir(userdir):
-                znc.Broadcast("Uh oh. Source directory still there.", True)
+                znc.CZNC.Broadcast(
+                    "Uh oh. Source directory still there.", True)
             else:
-                znc.Broadcast("Operation completed", True)
+                znc.CZNC.Broadcast("Operation completed", True)
         except Exception as e:
-            znc.Broadcast(
+            znc.CZNC.Broadcast(
                 "deluserdir:OnDeleteUser failed with %s" % str(e), True)
         return znc.CONTINUE
