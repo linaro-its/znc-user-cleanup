@@ -9,7 +9,10 @@ import os
 import shutil
 
 
-class deluserdir(znc.Module):
+# Derive from Module and Timer so that the RunJob function (which
+# is needed for the Timer code) can access the nv values which
+# are set up for the Module code to work.
+class deluserdir(znc.Module, znc.Timer):
     description = (
         "Deletes or moves user directories to trash when a user account "
         "is deleted"
@@ -71,22 +74,6 @@ class deluserdir(znc.Module):
                 )
         return success
 
-    def OnDeleteUser(self, user):
-        trashdir = self.nv["trashdir"]
-        userdir = user.GetUserPath()
-        try:
-            if trashdir == "":
-                znc.CZNC.Get().Broadcast("Deleting %s" % userdir)
-                shutil.rmtree(userdir)
-            else:
-                znc.CZNC.Get().Broadcast("Moving %s to trash dir" % userdir)
-                shutil.move(userdir, trashdir)
-            self.__output_users(True)
-        except Exception as e:
-            znc.CZNC.Get().Broadcast(
-                "deluserdir:OnDeleteUser failed with %s" % str(e))
-        return znc.CONTINUE
-
     def __output_table(self, t, broadcast):
         i = 0
         s = znc.String()
@@ -115,3 +102,39 @@ class deluserdir(znc.Module):
         # For now, just provide some debugging information when we receive
         # a private message.
         self.__output_users(False)
+
+    def OnDeleteUser(self, user):
+        # This handler gets called before *anything* else happens to process
+        # the user's deletion. As a result, we have to wait a bit to give ZNC
+        # time to finish processing the deletion, otherwise that extra
+        # processing can end up creating a "new" user directory.
+        #
+        # So let's set a timer and give ourselves a callback with the details
+        # of the user being deleted.
+        timer = self.CreateTimer(
+            deluserdir,
+            interval=4,
+            cycles=1,
+            description="Delete %s after 4 seconds" % user.GetCleanUserName()
+        )
+        # Since the user *should* be deleted when the timer fires, the only
+        # thing worth passing to the timer is the path to the user's
+        # directory.
+        timer.msg = user.GetUserPath()
+        znc.CZNC.Get().Broadcast("4 second timer set up for deluserdir")
+        return znc.CONTINUE
+
+    def RunJob(self):
+        trashdir = self.nv["trashdir"]
+        userdir = self.msg
+        try:
+            if trashdir == "":
+                znc.CZNC.Get().Broadcast("Deleting %s" % userdir)
+                shutil.rmtree(userdir)
+            else:
+                znc.CZNC.Get().Broadcast("Moving %s to trash dir" % userdir)
+                shutil.move(userdir, trashdir)
+            self.__output_users(True)
+        except Exception as e:
+            znc.CZNC.Get().Broadcast(
+                "deluserdir:OnDeleteUser failed with %s" % str(e))
