@@ -12,7 +12,7 @@ import shutil
 # Derive from Module and Timer so that the RunJob function (which
 # is needed for the Timer code) can access the nv values which
 # are set up for the Module code to work.
-class deluserdir(znc.Module, znc.Timer):
+class deluserdir(znc.Module):
     description = (
         "Deletes or moves user directories to trash when a user account "
         "is deleted"
@@ -112,7 +112,7 @@ class deluserdir(znc.Module, znc.Timer):
         # So let's set a timer and give ourselves a callback with the details
         # of the user being deleted.
         timer = self.CreateTimer(
-            deluserdir,
+            self.cleanuptimer,
             interval=4,
             cycles=1,
             description="Delete %s after 4 seconds" % user.GetCleanUserName()
@@ -124,17 +124,19 @@ class deluserdir(znc.Module, znc.Timer):
         znc.CZNC.Get().Broadcast("4 second timer set up for deluserdir")
         return znc.CONTINUE
 
-    def RunJob(self):
-        trashdir = self.nv["trashdir"]
-        userdir = self.msg
-        try:
-            if trashdir == "":
-                znc.CZNC.Get().Broadcast("Deleting %s" % userdir)
-                shutil.rmtree(userdir)
-            else:
-                znc.CZNC.Get().Broadcast("Moving %s to trash dir" % userdir)
-                shutil.move(userdir, trashdir)
-            self.__output_users(True)
-        except Exception as e:
-            znc.CZNC.Get().Broadcast(
-                "deluserdir:OnDeleteUser failed with %s" % str(e))
+    class cleanuptimer(znc.Timer):
+        def RunJob(self):
+            userdir = self.msg
+            trashdir = self.GetModule().nv["trashdir"]
+            try:
+                if trashdir == "":
+                    znc.CZNC.Get().Broadcast("Deleting %s" % userdir)
+                    shutil.rmtree(userdir)
+                else:
+                    znc.CZNC.Get().Broadcast(
+                        "Moving %s to trash dir" % userdir)
+                    shutil.move(userdir, trashdir)
+                self.__output_users(True)
+            except Exception as e:
+                znc.CZNC.Get().Broadcast(
+                    "deluserdir:OnDeleteUser failed with %s" % str(e))
