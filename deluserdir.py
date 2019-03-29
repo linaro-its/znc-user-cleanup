@@ -98,10 +98,22 @@ class deluserdir(znc.Module, znc.Timer):
                 "__output_users failed with %s" % str(e))
 
     def __output_status(self):
-        self.PutModule("Currently not implemented")
+        if self.trashdir_setting == "":
+            self.PutModule(
+                "deluserdir is configured to delete user directories")
+        else:
+            self.PutModule(
+                "deluserdir is configured to move user directories to "
+                "'%s' when user accounts are deleted" % self.trashdir_setting)
+        self.PutModule("To change this, unload and reload the module with the")
+        self.PutModule("desired setting.")
 
     def __list_trash(self):
-        self.PutModule("Currently not implemented")
+        if self.trashdir_setting == "":
+            self.PutModule(
+                "deluserdir is configured to delete user directories")
+        else:
+            self.__output_users()
 
     def __empty_trash(self):
         self.PutModule("Currently not implemented")
@@ -133,7 +145,7 @@ class deluserdir(znc.Module, znc.Timer):
                 self.__output_status()
             elif message == "listtrash":
                 self.__list_trash()
-            elif message == "empytrash":
+            elif message == "emptytrash":
                 self.__empty_trash()
             else:
                 self.__emit_help()
@@ -159,6 +171,23 @@ class deluserdir(znc.Module, znc.Timer):
         timer.trashdir_setting = self.trashdir_setting
         return znc.CONTINUE
 
+    def __get_dstuserdir(self, userdir, trashdir):
+        # We need to check that a directory doesn't already exist with the
+        # user's name in the trash directory. If it does, we need to append
+        # an incrementing digit until we don't have a clash.
+        suffix = 1
+        user = os.path.basename(userdir)
+        test_path = os.path.join(trashdir, user)
+        while os.path.isdir(test_path):
+            new_user = "%s%s" % (user, suffix)
+            suffix += 1
+            test_path = os.path.join(trashdir, new_user)
+        return test_path
+
+    def __move_userdir(self, userdir, trashdir):
+        dst_name = self.__get_dstuserdir(userdir, trashdir)
+        shutil.move(userdir, dst_name)
+
     def RunJob(self):
         try:
             userdir = self.msg
@@ -169,7 +198,7 @@ class deluserdir(znc.Module, znc.Timer):
             else:
                 znc.CZNC.Get().Broadcast(
                     "Moving %s to trash dir" % userdir)
-                shutil.move(userdir, trashdir)
+                self.__move_userdir(userdir, trashdir)
         except Exception as e:
             znc.CZNC.Get().Broadcast(
                 "deluserdir:OnDeleteUser failed with %s" % str(e))
