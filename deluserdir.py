@@ -86,13 +86,16 @@ class deluserdir(znc.Module, znc.Timer):
     def __output_users(self):
         try:
             dirs = next(os.walk(self.trashdir_setting))[1]
-            # Create a table with all of the user directories list
-            t = znc.CTable()
-            t.AddColumn("Users in trash directory")
-            for dir in dirs:
-                t.AddRow()
-                t.SetCell("Users in trash directory", dir)
-            self.__output_table(t)
+            if dirs == []:
+                self.PutModule("The trash directory is empty")
+            else:
+                # Create a table with all of the user directories list
+                t = znc.CTable()
+                t.AddColumn("Users in trash directory")
+                for dir in dirs:
+                    t.AddRow()
+                    t.SetCell("Users in trash directory", dir)
+                self.__output_table(t)
         except Exception as e:
             self.PutModule(
                 "__output_users failed with %s" % str(e))
@@ -116,7 +119,15 @@ class deluserdir(znc.Module, znc.Timer):
             self.__output_users()
 
     def __empty_trash(self):
-        self.PutModule("Currently not implemented")
+        dirs = next(os.walk(self.trashdir_setting))[1]
+        if dirs == []:
+            self.PutModule("The trash directory is empty")
+        else:
+            self.PutModule("Emptying the trash directory ...")
+            for dir in dirs:
+                foo = os.path.join(self.trashdir_setting, dir)
+                shutil.rmtree(foo)
+                self.PutModule(dir)
 
     def __emit_help(self):
         t = znc.CTable()
