@@ -128,15 +128,19 @@ class deluserdir(znc.Module, znc.Timer):
         self.__output_table(t)
 
     def OnModCommand(self, message):
-        s = message.s
-        if s == "status":
-            self.__output_status()
-        elif s == "listtrash":
-            self.__list_trash()
-        elif s == "empytrash":
-            self.__empty_trash()
-        else:
-            self.__emit_help()
+        try:
+            s = message.s
+            if s == "status":
+                self.__output_status()
+            elif s == "listtrash":
+                self.__list_trash()
+            elif s == "empytrash":
+                self.__empty_trash()
+            else:
+                self.__emit_help()
+        except Exception as e:
+            self.PutModule(
+                "deluserdir:OnModCommand failed with %s" % str(e))
 
     def OnDeleteUser(self, user):
         # This handler gets called before *anything* else happens to process
