@@ -10,6 +10,8 @@ This repo provides two solutions:
 
 2. A ZNC module which, when loaded, will be triggered when a user account is deleted on ZNC and either move that user's directory to the nominated "trash" folder or delete it, depending on whether the folder path is specified or not.
 
+It is intended that the script is used as a one-off to cleanup the user directory today and then the module is used to maintain cleanliness going forwards.
+
 # Using the script
 
 Since the script has to move or delete folders on the ZNC server itself, this script has to be run on that server.
@@ -53,3 +55,28 @@ This can also be done via the global settings on webadmin. Once enabled, you sho
 Specifying `trashdir=` means that, when a user account is deleted, the corresponding user directory will be deleted as well.
 
 Again, this can also be done via webadmin.
+
+Configuring what the module does when a user is deleted, i.e. delete the user's directory or move it to a trash directory, can only be done when loading the module.
+
+**NOTE!** If you are using the ZNC Docker image, it is strongly advised that the trash directory is located within /znc-data (the mount volume).
+
+The module supports a number of commands:
+
+```
+/msg *deluserdir status
+```
+
+Causes the module to confirm whether it is deleting user directories or moving them to a trash directory and, if the latter, where that directory is located.
+
+```
+/msg *deluserdir listtrash
+```
+
+Causes the module to list out the directories in the trash directory if it is configured.
+
+```
+/msg *deluserdir emptytrash
+```
+
+Causes the module to empty the trash directory if it is configured.
+

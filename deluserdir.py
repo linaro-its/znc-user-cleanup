@@ -20,6 +20,8 @@ class deluserdir(znc.Module, znc.Timer):
     module_types = [znc.CModInfo.GlobalModule]
     has_args = True
 
+    trashdir_setting = None
+
     def OnLoad(self, args, message):
         success = True
         # Check the args and store associated values
@@ -27,42 +29,42 @@ class deluserdir(znc.Module, znc.Timer):
         for arg in arglist:
             k, v = arg.split("=")
             if k == "trashdir":
-                self.nv[k] = v
+                self.trashdir_setting = v
             else:
                 message.s = (
                     "'%s' is not recognised" % k
                 )
                 success = False
-        if "trashdir" not in self.nv:
+        if self.trashdir_setting is None:
             message.s = (
                 "'trashdir' must be set either to an empty string or"
                 " to the desired trash directory"
             )
             success = False
         # If trashdir is specified ...
-        if success and self.nv["trashdir"] != "":
+        if success and self.trashdir_setting != "":
             # make sure it exists
-            if not os.path.isdir(self.nv["trashdir"]):
+            if not os.path.isdir(self.trashdir_setting):
                 message.s = (
                     "The specified trash directory ('%s') cannot be found" %
-                    self.nv["trashdir"]
+                    self.trashdir_setting
                 )
                 success = False
             else:
                 # make sure that we can write to it.
                 success = os.access(
-                    self.nv["trashdir"],
+                    self.trashdir_setting,
                     os.R_OK | os.W_OK | os.X_OK
                 )
                 if not success:
                     message.s = (
                         "The specified trash directory ('%s') doesn't have the"
                         " correct access rights for the account running ZNC" %
-                        self.nv["trashdir"]
+                        self.trashdir_setting
                     )
 
         if success:
-            if self.nv["trashdir"] == "":
+            if self.trashdir_setting == "":
                 znc.CZNC.Get().Broadcast(
                     "deluserdir is loaded. User directories will be deleted"
                 )
@@ -70,38 +72,33 @@ class deluserdir(znc.Module, znc.Timer):
                 znc.CZNC.Get().Broadcast(
                     "deluserdir is loaded. User directories will be moved"
                     " to '%s' when user accounts are deleted" %
-                    self.nv["trashdir"]
+                    self.trashdir_setting
                 )
         return success
 
-    def __output_table(self, t, broadcast):
+    def __output_table(self, t):
         i = 0
         s = znc.String()
         while t.GetLine(i, s):
-            if broadcast:
-                znc.CZNC.Get().Broadcast(s.s)
-            else:
-                self.PutModule(s.s)
+            self.PutModule(s.s)
             i += 1
 
-    def __output_users(self, broadcast):
+    def __output_users(self):
         try:
-            dirs = next(os.walk(znc.CZNC.Get().GetUserPath()))[1]
+            dirs = next(os.walk(self.trashdir_setting))[1]
             # Create a table with all of the user directories list
             t = znc.CTable()
-            t.AddColumn("Users with directories")
+            t.AddColumn("Users in trash directory")
             for dir in dirs:
                 t.AddRow()
-                t.SetCell("Users with directories", dir)
-            self.__output_table(t, broadcast)
+                t.SetCell("Users in trash directory", dir)
+            self.__output_table(t)
         except Exception as e:
             self.PutModule(
                 "__output_users failed with %s" % str(e))
 
     def OnModCommand(self, message):
-        # For now, just provide some debugging information when we receive
-        # a private message.
-        self.__output_users(False)
+        self.PutModule(message.s)
 
     def OnDeleteUser(self, user):
         # This handler gets called before *anything* else happens to process
@@ -117,17 +114,15 @@ class deluserdir(znc.Module, znc.Timer):
             cycles=1,
             description="Delete %s after 4 seconds" % user.GetCleanUserName()
         )
-        # Since the user *should* be deleted when the timer fires, the only
-        # thing worth passing to the timer is the path to the user's
-        # directory.
         timer.msg = user.GetUserPath()
         znc.CZNC.Get().Broadcast("4 second timer set up for deluserdir")
         return znc.CONTINUE
 
     def RunJob(self):
         userdir = self.msg
-        trashdir = self.GetModule().nv["trashdir"]
+        # trashdir = self.GetModule().nv["trashdir"]
         try:
+            trashdir = self.trashdir_setting
             if trashdir == "":
                 znc.CZNC.Get().Broadcast("Deleting %s" % userdir)
                 shutil.rmtree(userdir)
