@@ -97,6 +97,15 @@ class deluserdir(znc.Module, znc.Timer):
             self.PutModule(
                 "__output_users failed with %s" % str(e))
 
+    def __output_status(self):
+        self.PutModule("Currently not implemented")
+
+    def __list_trash(self):
+        self.PutModule("Currently not implemented")
+
+    def __empty_trash(self):
+        self.PutModule("Currently not implemented")
+
     def __emit_help(self):
         t = znc.CTable()
         t.AddColumn("Command")
