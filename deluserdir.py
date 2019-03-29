@@ -115,13 +115,13 @@ class deluserdir(znc.Module, znc.Timer):
             description="Delete %s after 4 seconds" % user.GetCleanUserName()
         )
         timer.msg = user.GetUserPath()
+        timer.trashdir_setting = self.trashdir_setting
         znc.CZNC.Get().Broadcast("4 second timer set up for deluserdir")
         return znc.CONTINUE
 
     def RunJob(self):
-        userdir = self.msg
-        # trashdir = self.GetModule().nv["trashdir"]
         try:
+            userdir = self.msg
             trashdir = self.trashdir_setting
             if trashdir == "":
                 znc.CZNC.Get().Broadcast("Deleting %s" % userdir)
