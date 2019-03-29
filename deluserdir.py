@@ -129,12 +129,11 @@ class deluserdir(znc.Module, znc.Timer):
 
     def OnModCommand(self, message):
         try:
-            s = message.s
-            if s == "status":
+            if message == "status":
                 self.__output_status()
-            elif s == "listtrash":
+            elif message == "listtrash":
                 self.__list_trash()
-            elif s == "empytrash":
+            elif message == "empytrash":
                 self.__empty_trash()
             else:
                 self.__emit_help()
