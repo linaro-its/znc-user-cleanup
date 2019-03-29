@@ -37,8 +37,6 @@ pipenv run python cleanup.py
 
 # Using the module
 
-**WARNING! This code is very much a work-in-progress and should not be used on a production system.**
-
 Since the module is written in Python, the ZNC module `modpython` needs to be enabled:
 
 ```
